@@ -2,7 +2,6 @@
 
 from datetime import datetime
 
-from sqlite3 import Timestamp
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 
@@ -11,29 +10,29 @@ db = SQLAlchemy()
 
 class Match(db.Model):
     """Connection between two users"""
-    
+
     __tablename__ = "matches"
-    
+
     user1 = db.Column(
         db.Integer,
         db.ForeignKey('users.username'),
         primary_key=True,
     )
-    
+
     user2 = db.Column(
         db.Integer,
         db.ForeignKey('users.username'),
         primary_key=True,
     )
-    
+
     is_matched = db.Column(
-        db.Boolean, 
+        db.Boolean,
         nullable=False,
         default=False
     )
-    
+
     is_rejected = db.Column(
-        db.Boolean, 
+        db.Boolean,
         nullable=False,
         default=False
     )
@@ -41,59 +40,59 @@ class Match(db.Model):
 
 class User(db.Model):
     """User in the system"""
-    
+
     __tablename__ = "users"
-    
+
     username = db.Column(
         db.Text,
         nullable=False,
         unique=True,
         primary_key=True
     )
-    
+
     password = db.Column(
         db.Text,
         nullable=False,
     )
-    
+
     first_name = db.Column(
         db.Text,
         nullable=False,
     )
-    
+
     age = db.Column(
         db.Integer,
         nullable=False,
         min=18,
     )
-    
+
     zip_code = db.Column(
         db.Text,
         char=5,
         nullable=False,
     )
-    
+
     image = db.Column(
         db.Text,
-        # a link to AWS file??? 
+        # a link to AWS file???
     )
-    
+
     bio = db.Column(
         db.Text,
     )
-    
+
     hobbies = db.Column(
         db.Text,
     )
-    
+
     interests = db.Column(
         db.Text,
     )
-    
+
     matches = db.relationship("Match", backref="user")
-    
+
     messages = db.relationship("Message", backref="user")
-    
+
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.first_name}>"
 
@@ -137,12 +136,12 @@ class User(db.Model):
                 return user
 
         return False
-    
-    
-    
+
+
+
 class Message(db.Model):
     """Messages between matches"""
-    
+
     __tablename__ = 'messages'
 
     id = db.Column(
@@ -160,18 +159,18 @@ class Message(db.Model):
         nullable=False,
         default=datetime.utcnow,
     )
-    
+
     sender = db.Column(
         db.Integer,
         db.ForeignKey('users.username', ondelete="cascade")
     )
-    
+
     recipient = db.Column(
         db.Integer,
         db.ForeignKey('users.username', ondelete="cascade")
     )
-    
-    
+
+
 def connect_db(app):
     """Connect this database to provided Flask app.
 
@@ -180,8 +179,8 @@ def connect_db(app):
 
     db.app = app
     db.init_app(app)
- 
-    
-    
-    
-    
+
+
+
+
+
