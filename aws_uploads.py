@@ -19,7 +19,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def upload_file(file_name, bucket, object_name, acl="public-read"):
+def upload_file(file_name, bucket, object_name):
     print("what is file name: ", file_name)
     #Upload file
     s3 = boto3.client(
@@ -28,21 +28,12 @@ def upload_file(file_name, bucket, object_name, acl="public-read"):
         aws_secret_access_key=S3_SECRET)
 
     try:
-        with open(file_name, 'rb') as data:
-            print("what is data: ", data)
-            response = s3.upload_fileobj(
-                data,
-                bucket,
-                object_name,
-                ExtraArgs={
-                    "ACL": acl,
-                    "ContentType": "image/jpeg"
-            })
-            print("response from s3: ", response)
+        response = s3.upload_fileobj(
+            file_name,
+            bucket,
+            object_name)
     except ClientError as e:
         logging.error(e)
         return False
     return True
-
-upload_file(IMAGE, S3_BUCKET,"test")
 

@@ -8,21 +8,27 @@ from flask_sqlalchemy import SQLAlchemy
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
+DEFAULT_IMAGE = "/img/default-pic.png"
+
 class Match(db.Model):
     """Connection between two users"""
 
     __tablename__ = "matches"
 
-    user1 = db.Column(
+    id = db.Column(
         db.Integer,
-        db.ForeignKey('users.username'),
         primary_key=True,
+        autoincrement=True
+    )
+    
+    user1 = db.Column(
+        db.Text,
+        db.ForeignKey('users.username')
     )
 
     user2 = db.Column(
-        db.Integer,
-        db.ForeignKey('users.username'),
-        primary_key=True,
+        db.Text,
+        db.ForeignKey('users.username')
     )
 
     is_matched = db.Column(
@@ -63,19 +69,16 @@ class User(db.Model):
     age = db.Column(
         db.Integer,
         nullable=False,
-        min=18,
     )
 
     zip_code = db.Column(
         db.Text,
-        char=5,
         nullable=False,
     )
 
     image = db.Column(
         db.Text,
-        nullable=True,
-        # a link to AWS file???
+        default = DEFAULT_IMAGE
     )
 
     bio = db.Column(
@@ -94,19 +97,32 @@ class User(db.Model):
     )
 
     radius = db.Column(
-        db.Number,
+        db.Integer,
         nullable=False
     )
 
-    matches = db.relationship("Match", backref="user")
+    # match_list = db.relationship("Match", backref="user")
 
-    messages = db.relationship("Message", backref="user")
+    # messages = db.relationship("Message", backref="user")
 
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.first_name}>"
+        
+    def serialize(self):
+        """Serialize to dictionary"""
+        
+        return {
+            "username": self.username,
+            "firstname": self.first_name,
+            "age": self.age,
+            "zipcode": self.zip_code,
+            "bio": self.bio,
+            "hobbies": self.hobbies,
+            "interests": self.interests
+        }
 
     @classmethod
-    def signup(cls, username, first_name, password, age, zip_code):
+    def signup(cls, username, first_name, password, age, zip_code, bio, hobbies, interests, radius, image):
         """Sign up user.
 
         Hashes password and adds user to system.
@@ -116,10 +132,15 @@ class User(db.Model):
 
         user = User(
             username=username,
-            first_name=first_name,
-            password=hashed_pwd,
-            age=age,
-            zip_code=zip_code
+            first_name = first_name,
+            password = hashed_pwd,
+            age = age,
+            zip_code = zip_code,
+            bio = bio,
+            hobbies = hobbies,
+            interests = interests,
+            radius=radius, 
+            image=image
         )
 
         db.session.add(user)
@@ -170,12 +191,12 @@ class Message(db.Model):
     )
 
     sender = db.Column(
-        db.Integer,
+        db.Text,
         db.ForeignKey('users.username', ondelete="cascade")
     )
 
     recipient = db.Column(
-        db.Integer,
+        db.Text,
         db.ForeignKey('users.username', ondelete="cascade")
     )
 
