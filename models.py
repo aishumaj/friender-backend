@@ -74,19 +74,28 @@ class User(db.Model):
 
     image = db.Column(
         db.Text,
+        nullable=True,
         # a link to AWS file???
     )
 
     bio = db.Column(
         db.Text,
+        nullable=False,
     )
 
     hobbies = db.Column(
         db.Text,
+        nullable=False,
     )
 
     interests = db.Column(
         db.Text,
+        nullable=False,
+    )
+
+    radius = db.Column(
+        db.Number,
+        nullable=False
     )
 
     matches = db.relationship("Match", backref="user")
