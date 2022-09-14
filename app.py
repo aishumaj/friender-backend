@@ -95,7 +95,7 @@ def login():
         serialized = user.serialize()
         return (jsonify(user=serialized), 201)
     else:
-        return "Incorrect username/password"
+        return (jsonify(error="Incorrect username/password"), 401)
 
 @app.patch("/update")
 def update():
