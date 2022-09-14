@@ -26,24 +26,23 @@ def upload_file(file_name, bucket, object_name, acl="public-read"):
         's3',
         aws_access_key_id=S3_KEY,
         aws_secret_access_key=S3_SECRET)
-    
+
     try:
         with open(file_name, 'rb') as data:
             print("what is data: ", data)
             response = s3.upload_fileobj(
-                data, 
-                bucket, 
+                data,
+                bucket,
                 object_name,
                 ExtraArgs={
                     "ACL": acl,
-                    "ContentType": "image/png"
+                    "ContentType": "image/jpeg"
             })
             print("response from s3: ", response)
     except ClientError as e:
         logging.error(e)
         return False
     return True
-        
+
 upload_file(IMAGE, S3_BUCKET,"test")
 
-       
