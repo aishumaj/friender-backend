@@ -1,6 +1,7 @@
 """SQLAlchemy models for Friender."""
 
 from datetime import datetime
+from distutils.log import debug
 
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
@@ -20,7 +21,7 @@ class Match(db.Model):
         primary_key=True,
         autoincrement=True
     )
-    
+
     user1 = db.Column(
         db.Text,
         db.ForeignKey('users.username')
@@ -42,7 +43,6 @@ class Match(db.Model):
         nullable=False,
         default=False
     )
-
 
 class User(db.Model):
     """User in the system"""
@@ -101,16 +101,21 @@ class User(db.Model):
         nullable=False
     )
 
-    # match_list = db.relationship("Match", backref="user")
+    matches = db.relationship(
+        "User",
+        secondary="matches",
+        primaryjoin= (Match.user1 == username),
+        secondaryjoin= (Match.user2 == username),
+        backref="seen")
 
     # messages = db.relationship("Message", backref="user")
 
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.first_name}>"
-        
+
     def serialize(self):
         """Serialize to dictionary"""
-        
+
         return {
             "username": self.username,
             "firstname": self.first_name,
@@ -139,7 +144,7 @@ class User(db.Model):
             bio = bio,
             hobbies = hobbies,
             interests = interests,
-            radius=radius, 
+            radius=radius,
             image=image
         )
 
@@ -162,11 +167,21 @@ class User(db.Model):
 
         if user:
             is_auth = bcrypt.check_password_hash(user.password, password)
+            print("is_auth:", is_auth)
+
             if is_auth:
                 return user
 
         return False
 
+    def potential(self):
+        # SELECT * FROM users
+        # if self == user1  in matches don't show that row
+        users = User.query.all()
+        
+
+
+    # def seen_by_one_user
 
 
 class Message(db.Model):
