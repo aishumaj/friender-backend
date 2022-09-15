@@ -160,7 +160,7 @@ def potentials():
     # find user1 = user.username
     # => ids = Match.query.filter(user1=self)
     # and don't show users in user2Col where match/ rejection = F
-    User.potential
+    users = User.query.get_or_404()
 
 
 # Show User Profile
