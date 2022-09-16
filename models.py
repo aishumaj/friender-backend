@@ -11,25 +11,28 @@ db = SQLAlchemy()
 
 DEFAULT_IMAGE = "/img/default-pic.png"
 
+
 class Match(db.Model):
     """Connection between two users"""
 
     __tablename__ = "matches"
 
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-        autoincrement=True
-    )
+    # id = db.Column(
+    #     db.Integer,
+    #     primary_key=True,
+    #     autoincrement=True
+    # )
 
     user1 = db.Column(
         db.Text,
-        db.ForeignKey('users.username')
+        db.ForeignKey('users.username'),
+        primary_key=True,
     )
 
     user2 = db.Column(
         db.Text,
-        db.ForeignKey('users.username')
+        db.ForeignKey('users.username'),
+        primary_key=True,
     )
 
     is_matched = db.Column(
@@ -43,6 +46,16 @@ class Match(db.Model):
         nullable=False,
         default=False
     )
+
+    def serialize(self):
+        """Serialize to dictionary"""
+        return {
+            "user1": self.user1,
+            "user2": self.user2,
+            "is_matched": self.is_matched,
+            "is_rejected": self.is_rejected
+        }
+
 
 class User(db.Model):
     """User in the system"""
@@ -78,7 +91,7 @@ class User(db.Model):
 
     image = db.Column(
         db.Text,
-        default = DEFAULT_IMAGE
+        default=DEFAULT_IMAGE
     )
 
     bio = db.Column(
@@ -104,14 +117,14 @@ class User(db.Model):
     matches = db.relationship(
         "User",
         secondary="matches",
-        primaryjoin= (Match.user1 == username),
-        secondaryjoin= (Match.user2 == username),
+        primaryjoin=(Match.user1 == username),
+        secondaryjoin=(Match.user2 == username),
         backref="seen")
 
     # messages = db.relationship("Message", backref="user")
 
     def __repr__(self):
-        return f"<User #{self.id}: {self.username}, {self.first_name}>"
+        return f"<User {self.username}: {self.username}, {self.first_name}>"
 
     def serialize(self):
         """Serialize to dictionary"""
@@ -137,13 +150,13 @@ class User(db.Model):
 
         user = User(
             username=username,
-            first_name = first_name,
-            password = hashed_pwd,
-            age = age,
-            zip_code = zip_code,
-            bio = bio,
-            hobbies = hobbies,
-            interests = interests,
+            first_name=first_name,
+            password=hashed_pwd,
+            age=age,
+            zip_code=zip_code,
+            bio=bio,
+            hobbies=hobbies,
+            interests=interests,
             radius=radius,
             image=image
         )
@@ -178,8 +191,6 @@ class User(db.Model):
         # SELECT * FROM users
         # if self == user1  in matches don't show that row
         users = User.query.all()
-        
-
 
     # def seen_by_one_user
 
@@ -224,8 +235,3 @@ def connect_db(app):
 
     db.app = app
     db.init_app(app)
-
-
-
-
-
