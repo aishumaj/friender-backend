@@ -194,14 +194,13 @@ def potentials():
     current_username = current_user.get('username')
     all_users = User.query.all()
 
-    # current_user_is_user1 = Match.query.filter(
-    #     Match.user1 == current_user,
-    #     Match.is_matched == False,
-    #     Match.is_rejected == False
-    # )
+    # current_user_is_user1 = Match.query.filter(Match.user1 == current_user).all()
 
     # print("CURRENT USER IS USER 1", current_user_is_user1)
     # # for match in current_user_is_user1:
+
+    # q  = db.session.query(User, Match).filter(User.username != Match.user1).filter(Match.user1 != current_user)
+    # print("long query", q)
 
     unseen = []
     for user in all_users:
