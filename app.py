@@ -87,17 +87,14 @@ def signup():
         # encoded_jwt = jwt.encode({"username": f"{new_user.username}"}, os.environ['SECRET_KEY'], algorithm="HS256")
         # return (jsonify(token = encoded_jwt), 201)
 
-
     except IntegrityError:
         return (jsonify(msg="Username already exists."), 400)
-
 
     # access_token = create_access_token(identity = new_user.serialize())
     # set_access_cookies(response, access_token)
     serialized = new_user.serialize()
     access_token = create_access_token(identity=serialized)
-    return (jsonify(access_token = access_token), 201)
-
+    return (jsonify(access_token=access_token), 201)
 
 
 @app.post("/login")
@@ -111,11 +108,12 @@ def login():
 
     if user:
         # response = jsonify({"msg": "login successful"})
-        access_token = create_access_token(identity = user.serialize())
+        access_token = create_access_token(identity=user.serialize())
         # set_access_cookies(response, access_token)
-        return (jsonify(access_token = access_token), 201)
+        return (jsonify(access_token=access_token), 201)
     else:
         return (jsonify(error="Incorrect username/password"), 401)
+
 
 @app.get("/profile")
 @jwt_required()
@@ -124,8 +122,9 @@ def profile():
     current_username = current_user.get('username')
     user = User.query.filter(User.username == current_username).first()
     serialized = user.serialize()
-    return (jsonify(user = serialized), 201)
-    
+    return (jsonify(user=serialized), 201)
+
+
 @app.patch("/update")
 @jwt_required()
 def update():
@@ -182,7 +181,7 @@ def update():
             return "info could not be updated"
 
         serialized = user.serialize()
-        return (jsonify(user = serialized), 200)
+        return (jsonify(user=serialized), 200)
 
 ############################################################
 # show potential matches (unseen)
@@ -195,12 +194,20 @@ def potentials():
     current_username = current_user.get('username')
     all_users = User.query.all()
 
-    unseen = {}
+    # current_user_is_user1 = Match.query.filter(
+    #     Match.user1 == current_user,
+    #     Match.is_matched == False,
+    #     Match.is_rejected == False
+    # )
+
+    # print("CURRENT USER IS USER 1", current_user_is_user1)
+    # # for match in current_user_is_user1:
+
+    unseen = []
     for user in all_users:
         # TODO:don't add seen users
         if user.username != current_username:
-            unseen[user.username] = user.serialize()
-
+            unseen.append(user.serialize())
 
     return (jsonify(unseen=unseen), 201)
 
@@ -235,16 +242,15 @@ def like():
     # check if current_user has already been liked or rejected by liked_username
     if exists:
         # TODO: make a better variable name
-        is_user_2_matched_to_user_1 = Match.query.filter(
+        new_match = Match.query.filter(
             Match.user1 == liked_username,
             Match.user2 == current_username
         ).first()
 
-        if is_like and not is_user_2_matched_to_user_1.is_rejected:
-            is_user_2_matched_to_user_1.is_matched = True
+        if is_like and not new_match.is_rejected:
+            new_match.is_matched = True
         else:
-            is_user_2_matched_to_user_1.is_rejected = True
-        new_match = is_user_2_matched_to_user_1
+            new_match.is_rejected = True
     else:
         new_match = Match(user1=current_username, user2=liked_username)
         if is_reject:
@@ -256,4 +262,4 @@ def like():
 
     serialized = new_match.serialize()
 
-    return (jsonify(new_match = serialized), 201)
+    return (jsonify(new_match=serialized), 201)
