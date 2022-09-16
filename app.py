@@ -117,7 +117,15 @@ def login():
     else:
         return (jsonify(error="Incorrect username/password"), 401)
 
-
+@app.get(“/profile”)
+@jwt_required()
+def profile():
+    current_user = get_jwt_identity()
+    current_username = current_user.get(‘username’)
+    user = User.query.filter(User.username == current_username).first()
+    serialized = user.serialize()
+    return (jsonify(user = serialized), 201)
+    
 @app.patch("/update")
 @jwt_required()
 def update():
