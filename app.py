@@ -9,11 +9,13 @@ from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager, set_access_cookies, unset_jwt_cookies
 
 from models import db, connect_db, User, Message, Match, DEFAULT_IMAGE
+from flask_cors import CORS, cross_origin
 
 load_dotenv()
 
 
 app = Flask(__name__)
+CORS(app)
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = (
@@ -44,7 +46,9 @@ def signup():
 
     Create new user and add to DB. Redirect JSON of new user.
     """
-
+    print("reached signup route")
+    print("recieved data: ", request.form)
+    
     username = request.form["username"]
     first_name = request.form["first_name"]
     password = request.form["password"]
@@ -199,10 +203,13 @@ def potentials():
 
     unseen = []
     for user in all_users:
-        # TODO:don't add seen users
-        if user.username != current_username:
+        is_seen = False
+        for match in current_user_is_user1:
+            if match.user2 == user.username:
+                is_seen= True
+                break
+        if not is_seen and user.username != current_username:
             unseen.append(user.serialize())
-
     return (jsonify(unseen=unseen), 201)
 
 # Match with potentials
