@@ -47,8 +47,8 @@ def signup():
     Create new user and add to DB. Redirect JSON of new user.
     """
     print("reached signup route")
-    print("recieved data: ", request.form)
-    
+    print("recieved data: ", request)
+
     username = request.form["username"]
     first_name = request.form["first_name"]
     password = request.form["password"]
